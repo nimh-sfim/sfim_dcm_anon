@@ -1,3 +1,5 @@
+#!/bin/env python
+
 import argparse
 from dcmanon import util
 

@@ -19,8 +19,15 @@ def load_header(fname):
     return pydicom.dcmread(fname, stop_before_pixels=True)
 
 
-def print_header(fname):
-    print(load_header(fname))
+def print_header(fname, tags=[]):
+    hdr = load_header(fname)
+    if len(tags) == 0:
+        print(hdr)
+    else:
+        # Ensure we don't put the same tag several times
+        tags = list(set(tags))
+        for t in tags:
+            print(f"{t}:\t" + str(hdr[t].value))
 
 
 def anon_dcmdata(dcmdata):
