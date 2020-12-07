@@ -30,7 +30,7 @@ def print_header(fname, tags=[]):
             print(f"{t}:\t" + str(hdr[t].value))
 
 
-def anon_dcmdata(dcmdata):
+def anon_dcmdata(dcmdata, name="", ident=None):
     """
     Anonymizes a dicom dataset metadata. DOES NOT DEFACE.
 
@@ -38,6 +38,10 @@ def anon_dcmdata(dcmdata):
     ----------
     dcmdata : pydicom.dataset
         A dicom dataset to be anonymized
+    name : str
+        The new name of the patient. Default: blank.
+    ident : str
+        The new ID of the patient. Default: None (keeps original ID)
 
     Returns
     -------
@@ -45,15 +49,26 @@ def anon_dcmdata(dcmdata):
     """
 
     anon = dcmdata
-    anon.PatientName = ""
-    anon.PatientBirthDate = "19700101"
-    anon.PatientAge = "99Y"
-    anon.PatientWeight = "00.1"
-
+    anon.PatientName = name
+    if ident:
+        anon.PatientID = ident
+    # Anonymize Birthdate
+    year = anon.PatientBirthDate[:3]
+    anon.PatientBirthDate = year + "0101"
+    # See if age should be truncated to 90
+    age = anon.PatientAge
+    time_unit = age[3]
+    if time_unit == 'Y':
+        # May be over 90
+        age_years = int(age[:3])
+        if age_years > 90:
+            age_years = 90
+        age = '%3.3dY' % age_years
+        anon.PatientAge = age
     return anon
 
 
-def anon_dcmfile(infile, out=None, outdir="."):
+def anon_dcmfile(infile, out="", outdir=".", name="", ident=None):
     """
     Anonymizes a dicom file
 
@@ -65,19 +80,26 @@ def anon_dcmfile(infile, out=None, outdir="."):
         The new name of the file. Default: None (appends _anon to original
         filename).
     outdir : str
-        The directory the anonymized file should go to.
+        The directory the anonymized file should go to. Default: '.'
+    name : str
+        The new name of the Patient. Default: blank.
+    ident : str
+        The new Patient ID. Default: None (keeps original ID).
     """
 
     # Anonymize data
     dcmdata = pydicom.dcmread(infile)
-    anon_data = anon_dcmdata(dcmdata)
+    anon_data = anon_dcmdata(
+        dcmdata, name=name, ident=ident
+    )
 
     # Devise outfile name
     base_name = os.path.basename(infile)
-    if out is None:
+    base_name, ext = os.path.splitext(base_name)
+    if out == "":
         out = base_name + "_anon"
-    name, ext = os.path.splitext(out)  # In case user put full .dcm
-    full_out = os.path.join(outdir, name + ".dcm")
+    fname, ext = os.path.splitext(out)  # In case user put full .dcm
+    full_out = os.path.join(outdir, fname + ".dcm")
 
     # Write file
     anon_data.save_as(full_out)

@@ -12,10 +12,17 @@ def _parse_dcm_hdr():
     parser.add_argument(
         "file", type=str, help="the input file to print header info for."
     )
-    parser.add_argument("-n", "--name", action="store_true", help="print Patient Name")
-    parser.add_argument("-i", "--id", action="store_true", help="print Patient ID")
     parser.add_argument(
-        "-d", "--description", action="store_true", help="print Series " "description."
+        "-n", "--name", action="store_true",
+        help="print Patient Name"
+    )
+    parser.add_argument(
+        "-i", "--ident", action="store_true",
+        help="print Patient ID"
+    )
+    parser.add_argument(
+        "-d", "--description", action="store_true",
+        help="print Series Description."
     )
     parser.add_argument(
         "-s", "--seriesnum", action="store_true", help="print Series Number"
@@ -30,7 +37,7 @@ def main():
     # Sad hack
     if args.name:
         tags.append("PatientName")
-    if args.id:
+    if args.ident:
         tags.append("PatientID")
     if args.description:
         tags.append("SeriesDescription")
