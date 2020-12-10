@@ -88,7 +88,10 @@ def anon_dcmfile(infile, out="", outdir=".", name="", ident=None):
     """
 
     # Anonymize data
-    dcmdata = pydicom.dcmread(infile)
+    try:
+        dcmdata = pydicom.dcmread(infile)
+    except pydicom.errors.InvalidDicomError:
+        raise ValueError('File %s is not a valid dicom' % infile)
     anon_data = anon_dcmdata(
         dcmdata, name=name, ident=ident
     )
