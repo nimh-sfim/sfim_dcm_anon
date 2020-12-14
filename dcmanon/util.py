@@ -68,19 +68,16 @@ def anon_dcmdata(dcmdata, name="", ident=None):
     return anon
 
 
-def anon_dcmfile(infile, out="", outdir=".", name="", ident=None):
+def anon_dcmfile(infile, out="", name="", ident=None):
     """
     Anonymizes a dicom file
 
     Parameters
     ----------
     infile : str
-        The name or path of a file to be anonymized
+        The name or path of a file to be anonymized.
     out : str
-        The new name of the file. Default: None (appends _anon to original
-        filename).
-    outdir : str
-        The directory the anonymized file should go to. Default: '.'
+        The output name.
     name : str
         The new name of the Patient. Default: blank.
     ident : str
@@ -100,9 +97,9 @@ def anon_dcmfile(infile, out="", outdir=".", name="", ident=None):
     base_name = os.path.basename(infile)
     base_name, ext = os.path.splitext(base_name)
     if out == "":
-        out = base_name + "_anon"
+        out = base_name
     fname, ext = os.path.splitext(out)  # In case user put full .dcm
-    full_out = os.path.join(outdir, fname + ".dcm")
+    full_out = os.path.join(fname + ".dcm")
 
     # Write file
     anon_data.save_as(full_out)
